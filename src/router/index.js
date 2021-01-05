@@ -44,20 +44,20 @@ const constRouter = [
       }
     ]
   },
-  {
-    path: '/profile',
-    component: Layout,
-    redirect: '/profile/index',
-    hidden: true,
-    children: [
-      {
-        path: 'index',
-        component: (resolve) => require(['@/views/profile/index'], resolve),
-        name: 'Profile',
-        meta: { title: 'profile', icon: 'user', noCache: true }
-      }
-    ]
-  },
+  // {
+  //   path: '/profile',
+  //   component: Layout,
+  //   redirect: '/profile/index',
+  //   hidden: true,
+  //   children: [
+  //     {
+  //       path: 'index',
+  //       component: (resolve) => require(['@/views/profile/index'], resolve),
+  //       name: 'Profile',
+  //       meta: { title: 'profile', icon: 'user', noCache: true }
+  //     }
+  //   ]
+  // },
   {
     path: '/error',
     component: Layout,
@@ -100,9 +100,27 @@ router.beforeEach((to, from, next) => {
       if (!asyncRouter) {
         if (!userRouter) {
           request.get(`system/menu/${user.username}`).then((res) => {
+            debugger
+            console.log(res)
             const permissions = res.data.data.permissions
             store.commit('account/setPermissions', permissions)
             asyncRouter = res.data.data.routes
+            // asyncRouter = [{
+            //   alwaysShow: true,
+            //   hidden: false,
+            //   meta: {title: "支付通道管理", icon: "el-icon-data-line", breadcrumb: true},
+            //   name: "支付通道管理",
+            //   path: "/payChannel",
+            //   component: Layout,
+            //   children: [
+            //     {
+            //       path: '/payChannel',
+            //       component: (resolve) => require(['@/views/payChannel/index'], resolve),
+            //       name: 'PayChannel',
+            //       meta: { title: '支付通道管理', icon: 'user', noCache: true }
+            //     }
+            //   ]
+            // }]
             store.commit('account/setRoutes', asyncRouter)
             save('USER_ROUTER', asyncRouter)
             go(to, next)
@@ -131,6 +149,8 @@ router.afterEach(() => {
 function go(to, next) {
   asyncRouter = filterAsyncRouter(asyncRouter)
   router.addRoutes(asyncRouter)
+  // console.log(asyncRouter)
+  // console.log(router)
   next({ ...to, replace: true })
 }
 

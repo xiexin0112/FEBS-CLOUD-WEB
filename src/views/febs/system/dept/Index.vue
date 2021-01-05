@@ -55,6 +55,9 @@
               <el-form-item :label="$t('table.dept.deptName')" prop="deptName">
                 <el-input v-model="dept.deptName" />
               </el-form-item>
+              <el-form-item :label="$t('table.dept.withRate')" prop="withRate">
+                <el-input type="number" placeholder="0~1之间" v-model="dept.withRate" :min="0" :max="1" />
+              </el-form-item>
               <el-form-item :label="$t('table.dept.orderNum')" prop="orderNum">
                 <el-input-number v-model="dept.orderNum" :min="0" :max="100" @change="handleNumChange" />
               </el-form-item>
@@ -102,7 +105,8 @@ export default {
         deptId: '',
         deptName: '',
         parentId: null,
-        orderNum: 0
+        orderNum: 0,
+        withRate: null
       }
     },
     initDeptTree() {

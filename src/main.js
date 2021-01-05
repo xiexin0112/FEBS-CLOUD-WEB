@@ -33,6 +33,7 @@ Vue.use(Element, {
 })
 
 Vue.prototype.$post = request.post
+Vue.prototype.$post2 = request.postJson
 Vue.prototype.$get = request.get
 Vue.prototype.$put = request.put
 Vue.prototype.$delete = request.delete

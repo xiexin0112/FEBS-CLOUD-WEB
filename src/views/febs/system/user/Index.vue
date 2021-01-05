@@ -47,6 +47,11 @@
           <span>{{ scope.row.username }}</span>
         </template>
       </el-table-column>
+      <el-table-column label="用户id" prop="username" :show-overflow-tooltip="true" align="center" min-width="120px">
+        <template slot-scope="scope">
+          <span>{{ scope.row.userId }}</span>
+        </template>
+      </el-table-column>
       <el-table-column
         :label="$t('table.user.sex')"
         :filters="[{ text: $t('common.sex.male'), value: '0' }, { text: $t('common.sex.female'), value: '1' }, { text: $t('common.sex.secret'), value: '2' }]"

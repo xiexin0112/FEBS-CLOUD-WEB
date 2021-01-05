@@ -8,7 +8,6 @@
         <tags-view v-if="needTagsView" />
       </div>
       <app-main />
-      <div class="footer">© 2020 <a target="_blank" href="https://mrbird.cc">MrBird</a> - FEBS</div>
       <right-panel v-if="showSettings">
         <settings />
       </right-panel>

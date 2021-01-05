@@ -140,7 +140,7 @@
         </span>
         <el-dropdown-menu slot="dropdown">
           <el-dropdown-item :disabled="login.type === 'up'" @click.native="login.type = 'up'">{{ $t('login.type.up') }}</el-dropdown-item>
-          <el-dropdown-item :disabled="login.type === 'social'" @click.native="login.type = 'social'">{{ $getPayOrderMessaget('login.type.social') }}</el-dropdown-item>
+          <el-dropdown-item :disabled="login.type === 'social'" @click.native="login.type = 'social'">{{ $t('login.type.social') }}</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
     </el-form>

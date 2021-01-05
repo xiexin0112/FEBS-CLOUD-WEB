@@ -69,7 +69,8 @@ export default {
     dept: {
       deptName: '部门名称',
       parentId: '上级部门',
-      orderNum: '排序'
+      withRate: '上级提成比例',
+      orderNum: '排序',
     },
     client: {
       clientId: '客户端ID',

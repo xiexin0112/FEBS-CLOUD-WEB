@@ -141,7 +141,15 @@ const request = {
         return tansParams(params)
       }],
       headers: {
+        // 'Content-Type': 'application/json',
         'Content-Type': 'application/x-www-form-urlencoded'
+      }
+    })
+  },
+  postJson(url, params) {
+    return service.post(url, params, {
+      headers: {
+        'Content-Type': 'application/json'
       }
     })
   },
