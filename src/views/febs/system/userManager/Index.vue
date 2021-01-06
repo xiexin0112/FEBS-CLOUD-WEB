@@ -1,0 +1,305 @@
+<template>
+  <div class="reward">
+    <el-main>
+      <div class="filter-container">
+        <el-input type="text" class="filter-item search-item" v-model="mobile" placeholder="手机号"/>
+
+        <el-date-picker
+          v-model="fromdate"
+          value-format="yyyy-MM-dd hh:mm:ss"
+          type="date"
+          placeholder="注册开始日期">
+        </el-date-picker>
+        <el-date-picker
+          v-model="todate"
+          value-format="yyyy-MM-dd hh:mm:ss"
+          type="date"
+          placeholder="注册结束日期">
+        </el-date-picker>
+
+        <el-date-picker
+          v-model="fromdatelast"
+          value-format="yyyy-MM-dd hh:mm:ss"
+          type="date"
+          placeholder="最后登录开始日期">
+        </el-date-picker>
+        <el-date-picker
+          v-model="todatelast"
+          value-format="yyyy-MM-dd hh:mm:ss"
+          type="date"
+          placeholder="最后登录结束日期">
+        </el-date-picker>
+
+        <el-select v-model="belongUserId" placeholder="推广人员">
+          <el-option
+            v-for="item in findUserList"
+            :key="item.USER_ID"
+            :label="item.USERNAME"
+            :value="item.USER_ID"
+          />
+        </el-select>
+        <el-select v-model="deptId" placeholder="归属"  clearable>
+          <el-option
+            v-for="item in typeList"
+            :key="item.deptId"
+            :label="item.deptName"
+            :value="item.deptId"
+          />
+        </el-select>
+
+        <el-button class="filter-item" type="primary" @click="getUser()">查询</el-button>
+      </div>
+      <el-table
+        :data="userData"
+        border
+        style="width: 100%">
+        <el-table-column
+          align="center"
+          label="注册时间">
+          <template slot-scope="scope">{{scope.row.createTime}}</template>
+        </el-table-column>
+        <el-table-column
+          align="center"
+          label="红包">
+          <template slot-scope="scope">{{scope.row.redEnvelope}}</template>
+        </el-table-column>
+        <el-table-column
+          align="center"
+          label="充值金额">
+          <template slot-scope="scope">{{scope.row.rechargeAmount}}</template>
+        </el-table-column>
+        <el-table-column
+          align="center"
+          label="提现金额">
+          <template slot-scope="scope">{{scope.row.withdrawalAmount}}</template>
+        </el-table-column>
+        <el-table-column
+          align="center"
+          label="邀请金额">
+          <template slot-scope="scope">{{scope.row.rewardAmount}}</template>
+        </el-table-column>
+        <el-table-column
+          align="center"
+          label="佣金">
+          <template slot-scope="scope">{{scope.row.memberRewardAmount}}</template>
+        </el-table-column>
+        <el-table-column
+          align="center"
+          label="可用余额">
+          <template slot-scope="scope">{{scope.row.balance}}</template>
+        </el-table-column>
+        <el-table-column
+          align="center"
+          label="所属部门">
+          <template slot-scope="scope">{{scope.row.deptName}}</template>
+        </el-table-column>
+        <el-table-column
+          align="center"
+          label="最后登录时间">
+          <template slot-scope="scope">{{scope.row.lastLoginTime}}</template>
+        </el-table-column>
+        <el-table-column
+          align="center"
+          label="手机号">
+          <template slot-scope="scope">{{scope.row.mobile}}</template>
+        </el-table-column>
+        <el-table-column
+          align="center"
+          label="状态">
+          <template slot-scope="scope">{{scope.row.userStatus}}</template>
+        </el-table-column>
+        <el-table-column
+          align="center"
+          label="用户名">
+          <template slot-scope="scope">{{scope.row.username}}</template>
+        </el-table-column>
+        <el-table-column
+          align="center"
+          label="操作">
+          <template slot-scope="scope">
+            <el-button v-if="scope.row.userStatus=='正常'" size="small" type="primary" @click="editItem(scope.row.userId, 0)">禁用</el-button>
+            <el-button v-else size="small" type="primary" @click="editItem(scope.row.userId, 1)">启用</el-button>
+          </template>
+        </el-table-column>
+        <el-table-column
+          align="center"
+          label="红包">
+          <template slot-scope="scope">
+            <el-button  size="small" type="primary" @click="redItem(scope.row)">发放红包</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <div class="pagination-container">
+        <el-pagination
+          background
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          layout="total, sizes,prev, pager, next,jumper"
+          :page-size="pageSize"
+          :page-sizes="[5,10,15]"
+          :total="total">
+        </el-pagination>
+      </div>
+    </el-main>
+
+    <el-dialog
+      title="红包"
+      :visible.sync="redToogle"
+      width="30%"
+    >
+      <p>金额:</p>
+      <el-input type="number" class="filter-item search-item" v-model="redEnvelope" />
+      <span slot="footer" class="dialog-footer">
+    <el-button @click="redToogle = false">取 消</el-button>
+    <el-button type="primary" @click="redItemConfim()">确 定</el-button>
+  </span>
+    </el-dialog>
+  </div>
+</template>
+<script>
+
+  export default {
+    name: 'reward',
+    data() {
+      return {
+        redEnvelope: null,
+        mobile: null,
+        fromdate: null,
+        todate: null,
+        fromdatelast: null,
+        todatelast: null,
+        redToogle: false,
+        typeList: [],
+        total: null,
+        pageSize: 10,
+        pageIndex: 1,
+        userData: [],
+        findUserList: [],
+        belongUserId: null,
+        redUser: null,
+        deptId: null
+      }
+    },
+    mounted() {
+      this.$get('/system/dept/findDeptLists').then((r) => {
+        this.typeList = r.data.data
+      })
+      this.findUser()
+      this.getUser()
+    },
+    methods: {
+      redItem (item) {
+        this.redUser = item
+        this.redToogle = true
+      },
+      redItemConfim ( ) {
+        this.$post2('system/envelopeInfo/createEnvelopeInfo', {
+          redEnvelope:this.redEnvelope,
+          userId:this.redUser.userId,
+          deptId:this.redUser.deptId
+        }).then((r) => {
+          if (r.data.code === '0000') {
+            this.$message({
+              message: '已发放',
+              type: 'success',
+            })
+            this.redToogle = false
+          } else {
+            this.$message({
+              message: r.data.message,
+              type: 'warning',
+            })
+          }
+        })
+      },
+      editItem (id, state) {
+        this.$confirm('确定要' + (state==0?'禁用':'启用') + '该用户吗?', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          width: 100,
+          type: 'warning'
+        }).then(() => {
+          this.$post2('system/user/updateUserStatus', {
+            userId: id,
+            status: state
+          }).then((r) => {
+            if (r.data.code === '0000') {
+              this.getUser()
+            } else {
+              this.$message({
+                message: r.data.message,
+                type: 'warning',
+              })
+            }
+          })
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消'
+          })
+        })
+      },
+      /* 修改分页数量 */
+      handleSizeChange(val) {
+        this.pageSize = val
+        this.getUser()
+      },
+      /* 修改分页页数 */
+      handleCurrentChange(val) {
+        this.pageIndex = val
+        this.getUser()
+      },
+      searchClick () {},
+      getUser() {
+        this.$post2('system/user/findUserListByPage', {
+          'request': {
+            pageSize: this.pageSize,
+            pageNum: this.pageIndex
+          },
+          mobile: this.mobile,
+          belongUserId: this.belongUserId,
+          fromdate: this.fromdate,
+          todate: this.todate,
+          fromdatelast: this.fromdatelast,
+          todatelast: this.todatelast,
+          deptId: this.deptId
+        }).then((r) => {
+          this.userData = r.data.data.rows
+          this.total = r.data.data.total
+        })
+      },
+      findUser() {
+        this.$post2('system/user/findUserByDeptId', {
+        }).then((r) => {
+          this.findUserList = r.data.data
+        })
+      }
+    }
+  }
+</script>
+<style lang="scss" scoped>
+  .dept {
+    margin: 10px;
+    .app-container {
+      margin: 0 0 10px 0 !important;
+    }
+  }
+
+  .el-card.is-always-shadow {
+    box-shadow: none;
+  }
+
+  .el-card {
+    border-radius: 0;
+    border: none;
+    .el-card__header {
+      padding: 10px 20px !important;
+      border-bottom: 1px solid #f1f1f1 !important;
+    }
+  }
+</style>
+<style lang="scss">
+  .vue-treeselect__menu {
+    max-height: 165px !important;
+  }
+</style>
