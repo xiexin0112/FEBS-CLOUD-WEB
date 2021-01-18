@@ -74,6 +74,11 @@
           <span>{{ scope.row.deptName }}</span>
         </template>
       </el-table-column>
+      <el-table-column label="角色" align="center" min-width="100px">
+        <template slot-scope="scope">
+          <span>{{ scope.row.roleName }}</span>
+        </template>
+      </el-table-column>
       <el-table-column
         :label="$t('table.user.status')"
         :filters="[{ text: $t('common.status.valid'), value: '1' }, { text: $t('common.status.invalid'), value: '0' }]"
@@ -96,6 +101,8 @@
           <i v-hasPermission="['user:view']" class="el-icon-view table-operation" style="color: #87d068;" @click="view(row)" />
           <i v-hasPermission="['user:update']" class="el-icon-setting table-operation" style="color: #2db7f5;" @click="edit(row)" />
           <i v-hasPermission="['user:delete']" class="el-icon-delete table-operation" style="color: #f50;" @click="singleDelete(row)" />
+          <i v-hasPermission="['user:delete']" class="el-icon-bank-card table-operation" style="color: #888;" @click="rechageDialogVisible = true; rechargeForm.userId = row.username" />
+          
           <el-link v-has-no-permission="['user:view','user:update','user:delete']" class="no-perm">
             {{ $t('tips.noPermission') }}
           </el-link>
@@ -115,6 +122,22 @@
       :dialog-visible="userViewVisible"
       @close="viewClose"
     />
+
+    <el-dialog title="充值" :visible.sync="rechageDialogVisible">
+      <el-form >
+        <el-form-item label="用户名">
+          <el-input  v-model="rechargeForm.userId" placeholder="用户名"></el-input>
+        </el-form-item>
+
+        <el-form-item label="金额">
+          <el-input type="number" class="filter-item search-item" v-model="rechargeForm.addition" placeholder="金额"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="rechageDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="recharge">确 定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -145,9 +168,15 @@ export default {
   },
   data() {
     return {
+      rechageDialogVisible: false,
       dialog: {
         isVisible: false,
         title: ''
+      },
+      rechargeForm: {
+        userId: null, //	必填项	number	userId
+        addition: null,	//必填项	number	充值金额数字
+        subtract: 0 //	必填项	number	减少金额数字默认给我传0回来
       },
       userViewVisible: false,
       tableKey: 0,
@@ -172,6 +201,26 @@ export default {
     this.fetch()
   },
   methods: {
+    recharge(){
+      if (!this.rechargeForm.userId || !this.rechargeForm.addition) {
+        return false
+      }
+      this.$post2('system/accountInfo/rechargeTeacherAccount', this.rechargeForm).
+      then((r) => {
+        this.rechageDialogVisible = false
+        if (r.data.code === '0000') {
+          this.$message({
+            message: 'success',
+            type: 'success',
+          })
+        } else {
+          this.$message({
+            message: r.data.message,
+            type: 'warning',
+          })
+        }
+      })
+    },
     transSex(sex) {
       switch (sex) {
         case '0':

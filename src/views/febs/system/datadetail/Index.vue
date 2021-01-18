@@ -67,7 +67,7 @@
         <el-table-column
           align="center"
           label="红包">
-          <template slot-scope="scope">{{scope.row.rewardAmount}}</template>
+          <template slot-scope="scope">{{scope.row.redEnvelope}}</template>
         </el-table-column>
         <el-table-column
           align="center"
@@ -83,6 +83,11 @@
           align="center"
           label="新邀请人数">
           <template slot-scope="scope">{{scope.row.newUserNum}}</template>
+        </el-table-column>
+        <el-table-column
+          align="center"
+          label="邀请人">
+          <template slot-scope="scope">{{scope.row.nviteesName}}</template>
         </el-table-column>
         <el-table-column
           align="center"
@@ -150,7 +155,7 @@
           sums[3]+= item.withdrawalAmount
           sums[4]+= item.yk
           sums[5]+= item.balance
-          sums[6]+= item.rewardAmount
+          sums[6]+= (item.redEnvelope || 0)
           sums[7]+= item.memberRewardAmount
           sums[8]+= item.userNum
           sums[9]+= item.newUserNum

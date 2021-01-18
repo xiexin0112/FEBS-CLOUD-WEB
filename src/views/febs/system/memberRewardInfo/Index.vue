@@ -64,7 +64,7 @@
     data() {
       return {
         total: null,
-        pageSize: 5,
+        pageSize: 10,
         pageIndex: 1,
         dataList: []
       }

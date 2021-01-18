@@ -36,8 +36,8 @@ module.exports = {
       // change xxx-api/login => mock/login
       // detail: https://cli.vuejs.org/config/#devserver-proxy
       [process.env.VUE_APP_BASE_API]: {
-        target: 'http://localhost:8301/',
-        // target: 'http://cc.winshopping.in:8302/',
+        // target: 'http://localhost:8301/',
+        target: 'http://cc.winshopping.in:8302/',
         changeOrigin: true,
         pathRewrite: {
           ['^' + process.env.VUE_APP_BASE_API]: ''

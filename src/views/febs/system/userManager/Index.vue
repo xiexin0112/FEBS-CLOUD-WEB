@@ -30,14 +30,14 @@
           placeholder="最后登录结束日期">
         </el-date-picker>
 
-        <el-select v-model="belongUserId" placeholder="推广人员">
+        <!-- <el-select v-model="belongUserId" placeholder="推广人员">
           <el-option
             v-for="item in findUserList"
             :key="item.USER_ID"
             :label="item.USERNAME"
             :value="item.USER_ID"
           />
-        </el-select>
+        </el-select> -->
         <el-select v-model="deptId" placeholder="归属"  clearable>
           <el-option
             v-for="item in typeList"
@@ -182,7 +182,7 @@
     },
     mounted() {
       this.$get('/system/dept/findDeptLists').then((r) => {
-        this.typeList = r.data.data
+        this.typeList = [ { deptId: '', deptName: '全部' }, ...r.data.data ]
       })
       this.findUser()
       this.getUser()
@@ -268,12 +268,12 @@
           this.total = r.data.data.total
         })
       },
-      findUser() {
-        this.$post2('system/user/findUserByDeptId', {
-        }).then((r) => {
-          this.findUserList = r.data.data
-        })
-      }
+      // findUser() {
+      //   this.$post2('system/user/findUserByDeptId', {
+      //   }).then((r) => {
+      //     this.findUserList = [ { USER_ID: '', USERNAME: "全部" }, ...r.data.data ]
+      //   })
+      // }
     }
   }
 </script>
