@@ -113,6 +113,17 @@
           label="用户名">
           <template slot-scope="scope">{{scope.row.username}}</template>
         </el-table-column>
+
+        <el-table-column
+          align="center"
+          label="分佣状态">
+          <template slot-scope="scope">
+            
+            {{scope.row.rebateStatus ? scope.row.rewardRate || scope.row.rebateStatus : getRebateText(scope.row.rebateStatus)}}
+            <i v-if="!rebateStatus" class="el-icon-edit" @click="rebateDialogVisible=true;setRebateForm.userId=scope.row.userId"></i>
+          </template>
+        </el-table-column>
+
         <el-table-column
           align="center"
           label="操作">
@@ -154,6 +165,26 @@
     <el-button type="primary" @click="redItemConfim()">确 定</el-button>
   </span>
     </el-dialog>
+
+    <el-dialog title="设置分成" :visible.sync="rebateDialogVisible">
+      <el-form>
+        <el-form-item label="分成比例">
+          <div class="progress-content">
+            <el-progress type="dashboard" :percentage="percentage" :color="colors"></el-progress>
+            <div class="buttons">
+              <el-button-group>
+                <el-button icon="el-icon-minus" @click="decrease"></el-button>
+                <el-button icon="el-icon-plus" @click="increase"></el-button>
+              </el-button-group>
+            </div>
+          </div>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="rebateDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="setRebate">确 定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -162,6 +193,7 @@
     name: 'reward',
     data() {
       return {
+        rebateDialogVisible: false,
         redEnvelope: null,
         mobile: null,
         fromdate: null,
@@ -177,17 +209,33 @@
         findUserList: [],
         belongUserId: null,
         redUser: null,
-        deptId: null
+        deptId: null,
+        setRebateForm: {
+          userId: '',
+          rewardRate: 0,
+          status: true
+        },
+        percentage: 10,
+        colors: [
+          {color: '#f56c6c', percentage: 20},
+          {color: '#e6a23c', percentage: 40},
+          {color: '#5cb87a', percentage: 60},
+          {color: '#1989fa', percentage: 80},
+          {color: '#6f7ad3', percentage: 100}
+        ]
       }
     },
     mounted() {
       this.$get('/system/dept/findDeptLists').then((r) => {
         this.typeList = [ { deptId: '', deptName: '全部' }, ...r.data.data ]
       })
-      this.findUser()
+      // this.findUser()
       this.getUser()
     },
     methods: {
+      getRebateText(status){
+        return ['申请中', '已开通'][status] || '未开通'
+      },
       redItem (item) {
         this.redUser = item
         this.redToogle = true
@@ -273,7 +321,41 @@
       //   }).then((r) => {
       //     this.findUserList = [ { USER_ID: '', USERNAME: "全部" }, ...r.data.data ]
       //   })
-      // }
+      // },
+
+      async setRebate(){
+      
+        this.$post2('system/standRewardInfo/addStandRewardInfo', this.setRebateForm).
+        then((r) => {
+          this.rebateDialogVisible = false
+          if (r.data.code === '0000') {
+            this.getUser()
+            this.$message({
+              message: 'success',
+              type: 'success'
+            })
+          } else {
+            this.$message({
+              message: r.data.message,
+              type: 'warning',
+            })
+          }
+        })
+      },
+      increase() {
+        this.percentage += 10;
+        if (this.percentage > 100) {
+          this.percentage = 100;
+        }
+        this.setRebateForm.rewardRate = this.percentage / 100
+      },
+      decrease() {
+        this.percentage -= 10;
+        if (this.percentage < 0) {
+          this.percentage = 0;
+        }
+        this.setRebateForm.rewardRate = this.percentage / 100
+      }
     }
   }
 </script>
@@ -301,5 +383,13 @@
 <style lang="scss">
   .vue-treeselect__menu {
     max-height: 165px !important;
+  }
+  .progress-content {
+    padding-left: 20px;
+    display: flex;
+    align-items: center;
+    .buttons {
+      margin-left: 20px;
+    }
   }
 </style>

@@ -21,6 +21,14 @@
           align="center"
           label="序号"
         />
+
+        <el-table-column
+          align="center"
+          label="代理名称"
+        >
+        <template slot-scope="scope">{{ scope.row.agentName }}</template>
+        </el-table-column>
+
         <el-table-column
           align="center"
           label="代理人名称"
@@ -46,19 +54,6 @@
         >
           <template slot-scope="scope">{{ scope.row.rechargeAmount }}</template>
         </el-table-column>
-        <el-table-column
-          align="center"
-          label="总平台利润"
-        >
-          <template slot-scope="scope">{{ scope.row.orderProfit }}</template>
-        </el-table-column>
-
-        <el-table-column
-          align="center"
-          label="代理利润"
-        >
-          <template slot-scope="scope">{{ scope.row.profitSharing }}</template>
-        </el-table-column>
 
         <el-table-column
           align="center"
@@ -73,7 +68,21 @@
         >
           <template slot-scope="scope">{{ scope.row.withdrawAmout }}</template>
         </el-table-column>
-        
+
+        <el-table-column
+          align="center"
+          label="代理利润"
+        >
+          <template slot-scope="scope">{{ scope.row.profitSharing }}</template>
+        </el-table-column>
+
+        <el-table-column
+          align="center"
+          label="总平台利润"
+        >
+          <template slot-scope="scope">{{ scope.row.orderProfit }}</template>
+        </el-table-column>
+
       </el-table>
       <div class="pagination-container">
         <el-pagination
