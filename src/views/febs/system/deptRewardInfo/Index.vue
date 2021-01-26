@@ -44,7 +44,7 @@
         </el-table-column>
         <el-table-column
           align="center"
-          label="服务费"
+          label="总佣金"
         >
           <template slot-scope="scope">{{ scope.row.serviceCharge }}</template>
         </el-table-column>

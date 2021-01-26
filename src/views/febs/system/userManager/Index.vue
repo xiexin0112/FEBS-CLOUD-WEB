@@ -55,9 +55,10 @@
         style="width: 100%">
         <el-table-column
           align="center"
-          label="注册时间">
-          <template slot-scope="scope">{{scope.row.createTime}}</template>
+          label="手机号">
+          <template slot-scope="scope">{{scope.row.mobile}}</template>
         </el-table-column>
+        
         <el-table-column
           align="center"
           label="红包">
@@ -75,13 +76,8 @@
         </el-table-column>
         <el-table-column
           align="center"
-          label="邀请金额">
-          <template slot-scope="scope">{{scope.row.rewardAmount}}</template>
-        </el-table-column>
-        <el-table-column
-          align="center"
           label="佣金">
-          <template slot-scope="scope">{{scope.row.memberRewardAmount}}</template>
+          <template slot-scope="scope">{{scope.row.rewardAmount}}</template>
         </el-table-column>
         <el-table-column
           align="center"
@@ -95,14 +91,15 @@
         </el-table-column>
         <el-table-column
           align="center"
-          label="最后登录时间">
-          <template slot-scope="scope">{{scope.row.lastLoginTime}}</template>
+          label="注册时间">
+          <template slot-scope="scope">{{scope.row.createTime}}</template>
         </el-table-column>
         <el-table-column
           align="center"
-          label="手机号">
-          <template slot-scope="scope">{{scope.row.mobile}}</template>
+          label="最后登录时间">
+          <template slot-scope="scope">{{scope.row.lastLoginTime}}</template>
         </el-table-column>
+        
         <el-table-column
           align="center"
           label="状态">
@@ -134,11 +131,22 @@
         </el-table-column>
         <el-table-column
           align="center"
-          label="红包">
+          label="红包"
+          width="110px">
           <template slot-scope="scope">
             <el-button  size="small" type="primary" @click="redItem(scope.row)">发放红包</el-button>
           </template>
         </el-table-column>
+
+        <el-table-column
+          align="center"
+          label="佣金"
+          width="110px">
+          <template slot-scope="scope">
+            <el-button  size="small" type="primary" @click="rebateItem(scope.row)">发放佣金</el-button>
+          </template>
+        </el-table-column>
+
       </el-table>
       <div class="pagination-container">
         <el-pagination
@@ -156,15 +164,89 @@
     <el-dialog
       title="红包"
       :visible.sync="redToogle"
-      width="30%"
+     
     >
-      <p>金额:</p>
-      <el-input type="number" class="filter-item search-item" v-model="redEnvelope" />
-      <span slot="footer" class="dialog-footer">
-    <el-button @click="redToogle = false">取 消</el-button>
-    <el-button type="primary" @click="redItemConfim()">确 定</el-button>
-  </span>
+      <el-tabs v-model="activeName">
+        <el-tab-pane label="发放红包" name="first">
+
+          <div></div>
+          <p>金额:</p>
+          <el-input type="number" class="filter-item search-item" v-model="redEnvelope" />
+          <p>密码:</p>
+          <el-input type="password" class="filter-item search-item" v-model="redEnvelopePassword" />
+          <br><br><br>
+
+          <div class="dialog-footer">
+            <el-button @click="redToogle = false">取 消</el-button>
+            <el-button type="primary" @click="redItemConfim()">确 定</el-button>
+          </div>
+
+        </el-tab-pane>
+        <el-tab-pane label="发放记录"  name="second">
+          <el-table
+            :data="redList"
+            style="width: 100%">
+            <el-table-column
+              prop="createTime"
+              label="发放时间">
+            </el-table-column>
+            <el-table-column
+              prop="addition"
+              label="金额">
+
+              <template slot-scope="scope">
+                {{ scope.row.addition ? `+${ scope.row.addition }` : `-${scope.row.subtract}` }}
+              </template>
+            </el-table-column>
+
+          </el-table>
+        </el-tab-pane>
+      </el-tabs>
     </el-dialog>
+
+    <el-dialog
+      title="佣金"
+      :visible.sync="rebateToogle"
+    >
+      <el-tabs v-model="activeName">
+        <el-tab-pane label="发放佣金" name="first">
+           <el-alert
+            :closable="false"
+            :title="`应发佣金:${this.rebateInfo.serviceCharge || 0 } \t 比例:${ this.rebateInfo.rewardRate || 0 } \t 已发:${ this.rebateList.length && this.rebateList[0].reward || 0 }`"
+            type="info">
+          </el-alert>
+          <div > </div>
+          <!-- <div > </div> -->
+          <p>金额:</p>
+          <el-input type="number" class="filter-item search-item" v-model="rebateEnvelope" />
+
+          <p>密码:</p>
+          <el-input type="password" class="filter-item search-item" v-model="rebateEnvelopePassword" />
+          <br><br><br>
+
+          <div class="dialog-footer">
+            <el-button @click="rebateToogle = false">取 消</el-button>
+            <el-button type="primary" @click="rebateItemConfim()">确 定</el-button>
+          </div>
+
+        </el-tab-pane>
+        <el-tab-pane label="发放记录"  name="second">
+          <el-table
+            :data="rebateList"
+            style="width: 100%">
+            <el-table-column
+              prop="createTime"
+              label="发放时间">
+            </el-table-column>
+            <el-table-column
+              prop="addition"
+              label="金额">
+            </el-table-column>
+          </el-table>
+        </el-tab-pane>
+      </el-tabs>
+    </el-dialog>
+
 
     <el-dialog title="设置分成" :visible.sync="rebateDialogVisible">
       <el-form>
@@ -193,14 +275,19 @@
     name: 'reward',
     data() {
       return {
+        activeName: 'first',
         rebateDialogVisible: false,
         redEnvelope: null,
+        rebateEnvelope: null,
+        redEnvelopePassword: null,
+        rebateEnvelopePassword: null,
         mobile: null,
         fromdate: null,
         todate: null,
         fromdatelast: null,
         todatelast: null,
         redToogle: false,
+        rebateToogle: false,
         typeList: [],
         total: null,
         pageSize: 10,
@@ -222,7 +309,10 @@
           {color: '#5cb87a', percentage: 60},
           {color: '#1989fa', percentage: 80},
           {color: '#6f7ad3', percentage: 100}
-        ]
+        ],
+        redList: [],
+        rebateList: [],
+        rebateInfo: {}
       }
     },
     mounted() {
@@ -236,15 +326,69 @@
       getRebateText(status){
         return ['申请中', '已开通'][status] || '未开通'
       },
+      async getRebateRecord(userId){
+        const data = await this.$post2('system/rewardInfo/rewardInfoList', {
+          userId,
+           "request": {
+            "pageSize": 40,
+            "pageNum": 1
+          },
+        })
+        this.rebateList = data.data.data.pageData.rows
+        this.rebateInfo = data.data.data.rebate
+      },
+      rebateItem (item) {
+        this.redUser = item
+        this.rebateToogle = true
+        this.rebateList = []
+        this.activeName = 'first'
+        this.getRebateRecord(item.userId)
+      },
+      rebateItemConfim ( ) {
+        if(!this.rebateEnvelope || !this.rebateEnvelopePassword) {
+          return false
+        }
+        this.$post2('system/rewardInfo/addRewardInfo', {
+          addition:this.rebateEnvelope,
+          userId:this.redUser.userId,
+          password: this.rebateEnvelopePassword
+        }).then((r) => {
+          if (r.data.code === '0000') {
+            this.$message({
+              message: '已发放',
+              type: 'success',
+            })
+            this.rebateToogle = false
+          } else {
+            this.$message({
+              message: r.data.message,
+              type: 'warning',
+            })
+          }
+        })
+      },
+      async getRedRecord(userId){
+        const data = await this.$post2('system/envelopeInfo/getEnvelopeInfosByUserId', {
+          userId
+        })
+        this.redList = data.data.data
+      },
       redItem (item) {
         this.redUser = item
         this.redToogle = true
+        this.redList = []
+        this.activeName = 'first'
+        this.getRedRecord(item.userId)
       },
       redItemConfim ( ) {
+        if(!this.redEnvelope || !this.redEnvelopePassword) {
+          return false
+        }
         this.$post2('system/envelopeInfo/createEnvelopeInfo', {
           redEnvelope:this.redEnvelope,
           userId:this.redUser.userId,
-          deptId:this.redUser.deptId
+          deptId:this.redUser.deptId,
+          redEnvelopePassword: this.redEnvelopePassword
         }).then((r) => {
           if (r.data.code === '0000') {
             this.$message({
