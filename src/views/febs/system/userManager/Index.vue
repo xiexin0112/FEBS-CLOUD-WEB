@@ -241,6 +241,10 @@
             <el-table-column
               prop="addition"
               label="金额">
+
+              <template slot-scope="scope">
+                {{ scope.row.addition ? `+${ scope.row.addition }` : `-${scope.row.subtract}` }}
+              </template>
             </el-table-column>
           </el-table>
         </el-tab-pane>
