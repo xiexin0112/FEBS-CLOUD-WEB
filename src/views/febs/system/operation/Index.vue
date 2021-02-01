@@ -84,13 +84,13 @@
           </el-table-column>
           <el-table-column
             align="center"
-            label="游戏人数"
+            label="充值人数"
           >
             <template slot-scope="scope">{{ scope.row.num }}</template>
           </el-table-column>
           <el-table-column
             align="center"
-            label="人均/期"
+            label="人均/次"
           >
             <template slot-scope="scope">{{ scope.row.avgperiod }}</template>
           </el-table-column>
@@ -113,25 +113,25 @@
             align="center"
             label="日期"
           >
-            <template slot-scope="scope">{{ scope.row.createTime }}</template>
+            <template slot-scope="scope">{{ scope.row.dateNo }}</template>
           </el-table-column>
           <el-table-column
             align="center"
-            label="游戏人数"
+            label="充值人数"
           >
-            <template slot-scope="scope">{{ scope.row.inviteNum }}</template>
+            <template slot-scope="scope">{{ scope.row.num }}</template>
           </el-table-column>
           <el-table-column
             align="center"
-            label="人均/期"
+            label="人均/次"
           >
-            <template slot-scope="scope">{{ scope.row.levelNum }}</template>
+            <template slot-scope="scope">{{ scope.row.avgperiod }}</template>
           </el-table-column>
           <el-table-column
             align="center"
             label="人均/金额"
           >
-            <template slot-scope="scope">{{ scope.row.rewardAccount }}</template>
+            <template slot-scope="scope">{{ scope.row.avgprice }}</template>
           </el-table-column>
         </el-table>
       </div>
@@ -146,25 +146,25 @@
             align="center"
             label="日期"
           >
-            <template slot-scope="scope">{{ scope.row.createTime }}</template>
+            <template slot-scope="scope">{{ scope.row.dateNo }}</template>
           </el-table-column>
           <el-table-column
             align="center"
-            label="游戏人数"
+            label="充值人数"
           >
-            <template slot-scope="scope">{{ scope.row.inviteNum }}</template>
+            <template slot-scope="scope">{{ scope.row.num }}</template>
           </el-table-column>
           <el-table-column
             align="center"
-            label="人均/期"
+            label="人均/次"
           >
-            <template slot-scope="scope">{{ scope.row.levelNum }}</template>
+            <template slot-scope="scope">{{ scope.row.avgperiod }}</template>
           </el-table-column>
           <el-table-column
             align="center"
             label="人均/金额"
           >
-            <template slot-scope="scope">{{ scope.row.rewardAccount }}</template>
+            <template slot-scope="scope">{{ scope.row.avgprice }}</template>
           </el-table-column>
         </el-table>
       </div>
@@ -266,6 +266,8 @@ export default {
     this.$get('/system/dept/findDeptLists').then((r) => {
       this.typeList = r.data.data
     })
+    this.queryTime = [new Date(new Date().setMonth(new Date().getMonth() - 1)), new Date()]
+    this.searchClick(1, 'findTeacherRH')
   },
   methods: {
     changeType() {
